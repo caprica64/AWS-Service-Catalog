@@ -5,6 +5,7 @@
 	<key>HierarchyData</key>
 	<array>
 		<string>216FBBCE-36FA-479D-8536-EAB728C57909</string>
+		<string>A5431FBA-16E1-4B53-BF71-DFD6B0CF4F26</string>
 	</array>
 	<key>ProjectItems</key>
 	<dict>
@@ -49,6 +50,50 @@
 			</dict>
 			<key>ItemName</key>
 			<string>vpc.yaml</string>
+			<key>ItemType</key>
+			<string>FileReference</string>
+		</dict>
+		<key>A5431FBA-16E1-4B53-BF71-DFD6B0CF4F26</key>
+		<dict>
+			<key>ItemData</key>
+			<dict>
+				<key>BookmarkData</key>
+				<data>
+				Ym9va6gCAAAAAAQQMAAAAA/VjQiPX8NgDXWbKd5rJyPD
+				xec+kO6vgVDcpBmzzOSZyAEAAAQAAAADAwAAAAgAKAUA
+				AAABAQAAVXNlcnMAAAAGAAAAAQEAAFNoYXJlZAAABAAA
+				AAEBAABMYWJzEwAAAAEBAABBV1MtU2VydmljZS1DYXRh
+				bG9nAAkAAAABAQAAUkVBRE1FLm1kAAAAFAAAAAEGAAAQ
+				AAAAIAAAADAAAAA8AAAAWAAAAAgAAAAEAwAArGAAAAAA
+				AAAIAAAABAMAAK5gAAAAAAAACAAAAAQDAACw+0gCAAAA
+				AAgAAAAEAwAACj/DAgAAAAAIAAAABAMAAFI/wwIAAAAA
+				FAAAAAEGAACIAAAAmAAAAKgAAAC4AAAAyAAAAAgAAAAA
+				BAAAQcPlGKjataUYAAAAAQIAAAEAAAAAAAAADwAAAAAA
+				AAAAAAAAAAAAAAgAAAABCQAAZmlsZTovLy8MAAAAAQEA
+				AE1hY2ludG9zaCBIRAgAAAAEAwAAAMBEE78BAAAIAAAA
+				AAQAAEHD2DnBgAAAJAAAAAEBAABDOUZEOUQyRC0xMzdG
+				LTQ4NDEtOTAwNS1EMDUxNDI3RkVFOEEYAAAAAQIAAIEA
+				AAABAAAA7xMAAAEAAAAAAAAAAAAAAAEAAAABAQAALwAA
+				AAAAAAABBQAAqAAAAP7///8BAAAAAAAAAA0AAAAEEAAA
+				bAAAAAAAAAAFEAAA2AAAAAAAAAAQEAAABAEAAAAAAABA
+				EAAA9AAAAAAAAAACIAAAtAEAAAAAAAAFIAAAJAEAAAAA
+				AAAQIAAANAEAAAAAAAARIAAAaAEAAAAAAAASIAAASAEA
+				AAAAAAATIAAAWAEAAAAAAAAgIAAAlAEAAAAAAAAwIAAA
+				wAEAAAAAAAAQ0AAABAAAAAAAAAA=
+				</data>
+				<key>FileURL</key>
+				<string>file:///Users/Shared/Labs/AWS-Service-Catalog/README.md</string>
+				<key>HasSecurityScope</key>
+				<true/>
+				<key>RelativePath</key>
+				<string>./README.md</string>
+				<key>TypeID</key>
+				<string>_CFileLocator</string>
+				<key>Version</key>
+				<integer>1</integer>
+			</dict>
+			<key>ItemName</key>
+			<string>README.md</string>
 			<key>ItemType</key>
 			<string>FileReference</string>
 		</dict>
