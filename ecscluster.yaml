@@ -1,0 +1,69 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: "Cluster template for ECS with Fargate"
+
+
+#--------------#
+#  Parameters  #
+#--------------#
+
+Parameters:
+    ParClusterName:
+        Type: String
+        Default: "Cluster"
+        Description: "Enter a cluster name"
+  
+    #---- Tag block parameters ----#
+    ParOwner:
+        Type: String
+        Default: "User"
+        Description: "Enter the cluster owner"
+    ParProject:
+        Type: String
+        Default: "DevOps"
+        Description: "Enter project name"
+    #------------------------------#
+
+#    ServiceSubnet:
+#        Type: List<AWS::EC2::Subnet::Id>
+#        Description: "Please put the Subnets that you would like to use for ECS Services and containers"
+#        Default: "subnet-001cfe32c63240de9, subnet-00ff8f9ba17850569, subnet-03ac8617e3445dace"
+#  
+#    VpcId:
+#        Type: String
+#        Description: "Projet VPC ID - can be imported or using environment parameters"
+#        Default: "vpc-0d1ba0a444b307b4d"
+    
+    
+    
+#--------------#
+#  Resources   #
+#--------------#
+
+Resources:
+
+    #---- ECS Cluster block ----#
+    EcsCluster:
+        Type: AWS::ECS::Cluster
+        Properties:
+            ClusterName: !Ref ParClusterName
+            #---- Resource Tag block ----#
+            Tags:
+                - Key: "Owner"
+                  Value: !Ref ParOwner
+                - Key: "Project"
+                  Value: !Ref ParProject
+            #----------------------------#
+            
+            
+#--------------#
+#   Outputs    #
+#--------------#
+
+Outputs:
+
+    OutputsEcsCluster:
+        Value:
+            Ref: EcsCluster
+        Export:
+            Name: !Sub "${AWS::StackName}-ClusterName"
+            
