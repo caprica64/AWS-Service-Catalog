@@ -7,6 +7,7 @@
 		<string>216FBBCE-36FA-479D-8536-EAB728C57909</string>
 		<string>A5431FBA-16E1-4B53-BF71-DFD6B0CF4F26</string>
 		<string>5016F0D6-D4D8-4674-A4BE-92FE014C6D10</string>
+		<string>533F4C83-AFCB-43A6-9672-FA8E195AF1F2</string>
 	</array>
 	<key>ProjectItems</key>
 	<dict>
@@ -95,6 +96,50 @@
 			</dict>
 			<key>ItemName</key>
 			<string>vpc-nat-gateway.yaml</string>
+			<key>ItemType</key>
+			<string>FileReference</string>
+		</dict>
+		<key>533F4C83-AFCB-43A6-9672-FA8E195AF1F2</key>
+		<dict>
+			<key>ItemData</key>
+			<dict>
+				<key>BookmarkData</key>
+				<data>
+				Ym9va6wCAAAAAAQQMAAAAEkfMt7yiB9mkaMkJSARYaf/
+				VUPwZq+ZgAN4QletyGfTzAEAAAQAAAADAwAAAAgAKAUA
+				AAABAQAAVXNlcnMAAAAGAAAAAQEAAFNoYXJlZAAABAAA
+				AAEBAABMYWJzEwAAAAEBAABBV1MtU2VydmljZS1DYXRh
+				bG9nAA8AAAABAQAAZWNzY2x1c3Rlci55YW1sABQAAAAB
+				BgAAEAAAACAAAAAwAAAAPAAAAFgAAAAIAAAABAMAAKxg
+				AAAAAAAACAAAAAQDAACuYAAAAAAAAAgAAAAEAwAAsPtI
+				AgAAAAAIAAAABAMAAAo/wwIAAAAACAAAAAQDAADcc9YC
+				AAAAABQAAAABBgAAjAAAAJwAAACsAAAAvAAAAMwAAAAI
+				AAAAAAQAAEHD7wj2CBSNGAAAAAECAAABAAAAAAAAAA8A
+				AAAAAAAAAAAAAAAAAAAIAAAAAQkAAGZpbGU6Ly8vDAAA
+				AAEBAABNYWNpbnRvc2ggSEQIAAAABAMAAADARBO/AQAA
+				CAAAAAAEAABBw9g5wYAAACQAAAABAQAAQzlGRDlEMkQt
+				MTM3Ri00ODQxLTkwMDUtRDA1MTQyN0ZFRThBGAAAAAEC
+				AACBAAAAAQAAAO8TAAABAAAAAAAAAAAAAAABAAAAAQEA
+				AC8AAAAAAAAAAQUAAKgAAAD+////AQAAAAAAAAANAAAA
+				BBAAAHAAAAAAAAAABRAAANwAAAAAAAAAEBAAAAgBAAAA
+				AAAAQBAAAPgAAAAAAAAAAiAAALgBAAAAAAAABSAAACgB
+				AAAAAAAAECAAADgBAAAAAAAAESAAAGwBAAAAAAAAEiAA
+				AEwBAAAAAAAAEyAAAFwBAAAAAAAAICAAAJgBAAAAAAAA
+				MCAAAMQBAAAAAAAAENAAAAQAAAAAAAAA
+				</data>
+				<key>FileURL</key>
+				<string>file:///Users/Shared/Labs/AWS-Service-Catalog/ecscluster.yaml</string>
+				<key>HasSecurityScope</key>
+				<true/>
+				<key>RelativePath</key>
+				<string>./ecscluster.yaml</string>
+				<key>TypeID</key>
+				<string>_CFileLocator</string>
+				<key>Version</key>
+				<integer>1</integer>
+			</dict>
+			<key>ItemName</key>
+			<string>ecscluster.yaml</string>
 			<key>ItemType</key>
 			<string>FileReference</string>
 		</dict>

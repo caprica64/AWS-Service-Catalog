@@ -12,6 +12,14 @@ Parameters:
         Default: "Cluster"
         Description: "Enter a cluster name"
   
+    Environment:
+        Description: "Select appropriate environment type"
+        Type: String
+        Default: "non-prod"
+        AllowedValues:
+          - non-prod
+          - prod
+  
     #---- Tag block parameters ----#
     ParOwner:
         Type: String
@@ -23,16 +31,37 @@ Parameters:
         Description: "Enter project name"
     #------------------------------#
 
-#    ServiceSubnet:
-#        Type: List<AWS::EC2::Subnet::Id>
-#        Description: "Please put the Subnets that you would like to use for ECS Services and containers"
-#        Default: "subnet-001cfe32c63240de9, subnet-00ff8f9ba17850569, subnet-03ac8617e3445dace"
-#  
-#    VpcId:
-#        Type: String
-#        Description: "Projet VPC ID - can be imported or using environment parameters"
-#        Default: "vpc-0d1ba0a444b307b4d"
-    
+
+    #------------------------------------------#
+    # Network, ALB subnet and security groups  #
+    #------------------------------------------#
+    AlbSubnet:
+        Type: List<AWS::EC2::Subnet::Id>
+        Description: "Choose the public subnets for the ALB"
+        Default: "subnet-04a48ac869a48de0b, subnet-0473279a433efcbe6, subnet-05e308bfdbb4d8fc6" 
+
+    VpcId:
+        Type: String
+        Description: "Select the VPC Id where your resources will be located"
+        Default: "vpc-0d1ba0a444b307b4d"
+        
+
+#--------------#
+#  Conditions  #
+#--------------#
+
+Conditions:
+#  CertificateOverrideTrue: !Equals 
+#    - !Ref CertificateOverride
+#    - "true"
+#
+#  CertificateOverrideFalse: !Equals 
+#    - !Ref CertificateOverride
+#    - "false" 
+
+    IsProdEnv: !Equals
+        - !Ref Environment
+        - prod
     
     
 #--------------#
@@ -41,18 +70,83 @@ Parameters:
 
 Resources:
 
-    #---- ECS Cluster block ----#
-    EcsCluster:
-        Type: AWS::ECS::Cluster
+    ALBSecurityGroup:
+        Type: AWS::EC2::SecurityGroup
         Properties:
-            ClusterName: !Ref ParClusterName
+            GroupName: ALBSecurityGroup  
+            GroupDescription: Allows inbound traffic to ALB and outbound to ECS Service
+            VpcId:
+              Ref: VpcId ##TO-DO << Import VpcID from the output stack name for the VPC.
+            SecurityGroupIngress:
+                - IpProtocol: tcp
+                  CidrIp: !If [IsProdEnv, "0.0.0.0/0", "10.0.0.0/16"] 
+                  FromPort: 80
+                  ToPort: 80
+                  Description: "Inbound unencrypted traffic"
+            SecurityGroupEgress:
+                - IpProtocol: tcp
+                  FromPort: 16384
+                  ToPort: 49191
+                  CidrIp: 0.0.0.0/0 ##TO DO << Replace with a VPC import
+                  Description: "Egress to ECS Service"
             #---- Resource Tag block ----#
             Tags:
                 - Key: "Owner"
                   Value: !Ref ParOwner
                 - Key: "Project"
                   Value: !Ref ParProject
+                - Key: "Name"
+                  Value: "ALB Security Group"
             #----------------------------#
+
+    EcsAlb:
+        Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+        Properties:
+            Scheme: internet-facing
+            LoadBalancerAttributes:
+                - Key: idle_timeout.timeout_seconds
+                  Value: '30'
+                # Subnets: ##TO-DO << Import from the network stack
+                #   - !ImportValue SubnetAPublic
+                #   - !ImportValue SubnetBPublic
+                #   - !ImportValue SubnetVPublic
+            Subnets:
+                - !Select [0, !Ref AlbSubnet]
+                - !Select [1, !Ref AlbSubnet]
+                - !Select [2, !Ref AlbSubnet]
+            SecurityGroups:
+              - !Ref ALBSecurityGroup
+            #---- Resource Tag block ----#
+            Tags:
+                - Key: "Owner"
+                  Value: !Ref ParOwner
+                - Key: "Project"
+                  Value: !Ref ParProject
+                - Key: "Name"
+                  Value: "ECS Application Load Balancer"
+            #----------------------------#
+
+    #---- ECS Cluster block ----#
+    EcsCluster:
+        Type: AWS::ECS::Cluster
+        Properties:
+            ClusterName: !Ref ParClusterName
+            CapacityProviders:
+                - FARGATE
+            DefaultCapacityProviderStrategy:
+                - CapacityProvider: FARGATE
+                  Weight: 1
+            #---- Resource Tag block ----#
+            ## Just a different notation example for Tagging
+            Tags:
+                -
+                    Key: "Owner"
+                    Value: !Ref ParOwner
+                -
+                    Key: "Project"
+                    Value: !Ref ParProject
+            #----------------------------#
+    #---------------------------#    
             
             
 #--------------#
@@ -66,4 +160,18 @@ Outputs:
             Ref: EcsCluster
         Export:
             Name: !Sub "${AWS::StackName}-ClusterName"
-            
+        Description: "Name of the ECS cluster"
+
+    OutputsAlb:
+        Value:
+            Ref: EcsAlb
+        Export:
+            Name: !Sub "${AWS::StackName}-EcsAlbName"
+        Description: "Name of the ECS ALB"
+                        
+    OutputsAlbArn:
+        Value:
+            Ref: EcsAlb
+        Export:
+            Name: !Sub "${AWS::StackName}-EcsAlbArn"
+        Description: "Name of the ECS ALB"   
