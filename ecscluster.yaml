@@ -83,6 +83,11 @@ Resources:
           FromPort: 80
           ToPort: 80
           Description: "Inbound unencrypted traffic"
+        - IpProtocol: tcp
+          CidrIp: !If [IsProdEnv, "0.0.0.0/0", "10.0.0.0/16"] 
+          FromPort: 80
+          ToPort: 443
+          Description: "Inbound TLS/encrypted traffic"          
       SecurityGroupEgress:
         - IpProtocol: tcp
           FromPort: 16384

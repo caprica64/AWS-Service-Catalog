@@ -17,6 +17,11 @@ Parameters:
     Default: "vpc-0d1ba0a444b307b4d"
     Description: "Enter the VPC Id where the services are based on"
 
+  EcsAlbArn:
+    Type: String
+    Default: "arn:aws:elasticloadbalancing:us-east-1:861211186414:loadbalancer/app/ECS-S-EcsAl-1UB1317EJ4JBE/33d74acee46444a5"
+    Description: "Enter the VPC Id where the services are based on"
+
   AlbSecurityGroup:
     Type: String
     Default: "sg-023666945cac3b9b0"
@@ -30,10 +35,6 @@ Parameters:
     Description: The ARN of the PrivateCA
     Default: "arn:aws:acm:us-east-1:861211186414:certificate/726e2b03-e2c2-4492-b1ca-80c6303f0862"
 
-  CertificateDomainName:
-    Type: String
-    Description: The domain name of in the private issued certificate
-    Default: "caprica.tech"
     
   #---- Tag block parameters ----#
   ParOwner:
@@ -45,7 +46,12 @@ Parameters:
     Default: "DevOps"
     Description: "Enter project name"
   #------------------------------#   
-    
+
+
+
+#------------------------------#
+#          Resources           # 
+#------------------------------#    
 Resources:
 
   #------------------------------------------#
@@ -94,3 +100,67 @@ Resources:
       #--------Resource Tag block--------#    
     #UpdateReplacePolicy: Retain
     #DeletionPolicy: Retain
+
+    
+  #------------------------------------------#
+  # Target Group                             #
+  #------------------------------------------#
+  EcsTg:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    #DependsOn: ECSALB
+    Properties:
+      HealthCheckIntervalSeconds: 120
+      HealthCheckPath: /
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 10
+      HealthyThresholdCount: 2
+      TargetGroupAttributes:
+        - Key: stickiness.enabled
+          Value: 'true'
+        - Key: stickiness.type
+          Value: 'lb_cookie'
+      TargetType: ip
+      Port: !Ref ServicePort
+      Protocol: HTTP
+      UnhealthyThresholdCount: 2
+      VpcId: !Ref VpcId
+  
+
+
+  #------------------------------------------#
+  # ALB Secure Listener, Rules and certs     #
+  #------------------------------------------#
+  ALBSecureListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      Certificates: 
+        - CertificateArn: !Ref PrivateCAArn
+      DefaultActions:
+      - Type: forward
+        TargetGroupArn: !Ref "EcsTg"
+      LoadBalancerArn: !Ref "EcsAlbArn" ##TO-DO << fix to import stack value
+      Port: 443
+      Protocol: HTTPS       
+    
+  ECSALBSecureListenerRule:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      Actions:
+      - Type: forward
+        TargetGroupArn: !Ref 'EcsTg'
+        Order: 1
+        ForwardConfig:
+          TargetGroups: 
+            - TargetGroupArn: !Ref EcsTg
+              Weight: 1
+          TargetGroupStickinessConfig:
+            DurationSeconds: 86400
+            Enabled: true
+      Conditions:
+      - Field: http-header
+        HttpHeaderConfig:
+          HttpHeaderName: Referer
+          Values:
+           - "https://svc1.caprica.tech"
+      ListenerArn: !Ref 'ALBSecureListener'
+      Priority: 1  
