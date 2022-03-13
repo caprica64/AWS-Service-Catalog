@@ -1,0 +1,96 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: "Cluster template for ECS/Fargate"
+
+Parameters:
+  ServiceName:
+    Type: String
+    Description: "Please put the ServiceName that you would like to create"
+    Default: "svc1"
+
+  ServicePort:
+    Type: Number
+    Description: "Entre com o valor inl da porta de serviço"
+    Default: 8080
+
+  VpcId:
+    Type: String
+    Default: "vpc-0d1ba0a444b307b4d"
+    Description: "Enter the VPC Id where the services are based on"
+
+  AlbSecurityGroup:
+    Type: String
+    Default: "sg-023666945cac3b9b0"
+    Description: "Enter the ALB Security Group ID to allow inbound access from the ALB"
+    
+  #------------------------------------------#
+  # Certificates                             #
+  #------------------------------------------#
+  PrivateCAArn:
+    Type: String
+    Description: The ARN of the PrivateCA
+    Default: "arn:aws:acm:us-east-1:861211186414:certificate/726e2b03-e2c2-4492-b1ca-80c6303f0862"
+
+  CertificateDomainName:
+    Type: String
+    Description: The domain name of in the private issued certificate
+    Default: "caprica.tech"
+    
+  #---- Tag block parameters ----#
+  ParOwner:
+    Type: String
+    Default: "User"
+    Description: "Enter the cluster owner"
+  ParProject:
+    Type: String
+    Default: "DevOps"
+    Description: "Enter project name"
+  #------------------------------#   
+    
+Resources:
+
+  #------------------------------------------#
+  # Service Security Group                   #
+  #------------------------------------------#
+  ServiceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+        GroupName: !Ref ServiceName
+        GroupDescription: Allows inbound traffic from ALB and outbound to internal services 
+        VpcId:
+          Ref: VpcId
+        SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: !Ref ServicePort
+          ToPort: !Ref ServicePort
+          Description: Allow ALB to reach container service port
+          SourceSecurityGroupId:
+            !Ref AlbSecurityGroup
+        #--------Resource Tag block--------#
+        Tags:
+        - Key: "Owner"
+          Value: !Ref ParOwner
+        - Key: "Project"
+          Value: !Ref ParProject
+        - Key: "Name"
+          Value: "Container Service Security Group"        
+        #--------Resource Tag block--------# 
+
+  #------------------------------------------#
+  # Service LogGroup                         #
+  #------------------------------------------# 
+  ServiceLogsGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "${ServiceName}-service-logs"
+      RetentionInDays: 5
+      #--------Resource Tag block--------#
+      Tags:
+        - Key: "Owner"
+          Value: !Ref ParOwner
+        - Key: "Project"
+          Value: !Ref ParProject
+        - Key: "Name"
+          Value: "Service Log Group"
+      #--------Resource Tag block--------#    
+    #UpdateReplacePolicy: Retain
+    #DeletionPolicy: Retain
