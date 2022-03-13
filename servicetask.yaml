@@ -17,6 +17,11 @@ Parameters:
     Default: "vpc-0d1ba0a444b307b4d"
     Description: "Enter the VPC Id where the services are based on"
 
+  AlbSubnet:
+    Type: List<AWS::EC2::Subnet::Id>
+    Description: "Choose the public subnets for the ALB"
+    Default: "subnet-04a48ac869a48de0b, subnet-0473279a433efcbe6, subnet-05e308bfdbb4d8fc6" 
+
   EcsAlbArn:
     Type: String
     Default: "arn:aws:elasticloadbalancing:us-east-1:861211186414:loadbalancer/app/ECS-S-EcsAl-1UB1317EJ4JBE/33d74acee46444a5"
@@ -26,6 +31,15 @@ Parameters:
     Type: String
     Default: "sg-023666945cac3b9b0"
     Description: "Enter the ALB Security Group ID to allow inbound access from the ALB"
+ 
+  ECRRepoUri:
+   Type: String
+   Default: "861211186414.dkr.ecr.us-east-1.amazonaws.com/app1"
+   Description: "Repo URI"
+  
+  EcsCluster:
+    Type: String
+    Default: "Cluster1"
     
   #------------------------------------------#
   # Certificates                             #
@@ -164,3 +178,137 @@ Resources:
            - "https://svc1.caprica.tech"
       ListenerArn: !Ref 'ALBSecureListener'
       Priority: 1  
+ 
+  #------------------------------------------#
+  # Execution roles and policies             #
+  #------------------------------------------#      
+  EcsExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+        Version: "2012-10-17"
+      RoleName: !Sub "${ServiceName}-execution-role"
+      Policies:
+      - PolicyName: !Sub "${ServiceName}-parameter-and-secrets-access"
+        PolicyDocument:
+          Statement:
+          - Effect: Allow
+            Action: ["ssm:GetParameters", "secretsmanager:GetSecretValue", "kms:Decrypt"]
+            Resource:
+            - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/*"
+            - !Sub "arn:aws:secretmanager:${AWS::Region}:${AWS::AccountId}:secret:*"
+            - !Sub "arn:aws:kms:${AWS::Region}:${AWS::AccountId}:key/*"  
+   
+  EcsExecutionRoleDefaultPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - ecr:GetAuthorizationToken
+              - ecr:BatchCheckLayerAvailability
+              - ecr:GetDownloadUrlForLayer
+              - ecr:BatchGetImage
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Effect: Allow
+            Resource: "*"
+        Version: "2012-10-17"
+      PolicyName: !Sub "${ServiceName}-EcsExecutionRoleDefaultPolicy"
+      Roles:
+        - Ref: EcsExecutionRole  
+
+  EcsTaskDefinitionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+        Version: "2012-10-17"
+         
+  #------------------------------------------#
+  # Service and task setup                   #
+  #------------------------------------------#
+  
+  EcsTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      ContainerDefinitions:
+        - Essential: true
+          Image:
+            Ref: ECRRepoUri
+          Name: !Sub "${ServiceName}-app"
+          PortMappings:
+            - ContainerPort: !Ref ServicePort
+              # HostPort: 80
+              Protocol: tcp  
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-stream-prefix: !Sub ${ServiceName}
+              awslogs-group: !Ref ServiceLogsGroup
+              awslogs-region: !Sub '${AWS::Region}'   
+          #------Parameters and Secrets ------#
+          #Secrets:
+            #----- Parameter Store item -----#
+            #  Can be prefixed or ARN based  #
+            # - Name: Parameter1
+            #   ValueFrom: /Service1/Parameter1 
+            # - Name: Parameter2
+            #   ValueFrom: /Service1/Parameter2 
+            #----- Parameter Store item -----#
+            # - Name: ServicePassword1
+            #   ValueFrom: 
+            #     !Sub 
+            #       - '${EnvSecret}:ServicePassword1::'
+            #       - EnvSecret: !ImportValue Service1SecretArn
+          #---------- Secrets ---------------#            
+      Cpu: "1024"
+      ExecutionRoleArn:
+        Fn::GetAtt:
+          - EcsExecutionRole
+          - Arn
+      Family: !Sub "${ServiceName}-task-definition"
+      Memory: "2048"
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      TaskRoleArn:
+        Fn::GetAtt:
+          - EcsTaskDefinitionRole
+          - Arn
+     
+  EcsService:
+    Type: AWS::ECS::Service
+    Properties:
+      Cluster: #We can refer cluster in a different way such as below.
+        Ref: EcsCluster
+      DeploymentConfiguration:
+        MaximumPercent: 200
+        MinimumHealthyPercent: 50
+      EnableECSManagedTags: false
+      LaunchType: FARGATE
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: DISABLED
+          SecurityGroups:
+            - !Ref ServiceSecurityGroup
+          Subnets: ##TO-DO << Replace with imported values
+            - !Select [0, !Ref AlbSubnet]
+            - !Select [1, !Ref AlbSubnet]
+            - !Select [2, !Ref AlbSubnet]
+      ServiceName: !Sub "${ServiceName}-service"
+      TaskDefinition:
+        Ref: EcsTaskDefinition
+      LoadBalancers:
+      - ContainerName: !Sub "${ServiceName}-app" 
+        ContainerPort: !Ref ServicePort
+        TargetGroupArn: !Ref EcsTg        
