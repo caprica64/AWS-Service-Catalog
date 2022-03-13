@@ -90,7 +90,7 @@ Resources:
           Description: "Inbound TLS/encrypted traffic"          
       SecurityGroupEgress:
         - IpProtocol: tcp
-          FromPort: 16384
+          FromPort: 80
           ToPort: 49191
           CidrIp: 0.0.0.0/0 ##TO DO << Replace with a VPC import
           Description: "Egress to ECS Service"

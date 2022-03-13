@@ -20,7 +20,8 @@ Parameters:
   AlbSubnet:
     Type: List<AWS::EC2::Subnet::Id>
     Description: "Choose the public subnets for the ALB"
-    Default: "subnet-04a48ac869a48de0b, subnet-0473279a433efcbe6, subnet-05e308bfdbb4d8fc6" 
+    Default: "subnet-04a48ac869a48de0b, subnet-0473279a433efcbe6, subnet-05e308bfdbb4d8fc6" ##Publics so we don't need NAT GW for awhile
+    #Default: "subnet-00ff8f9ba17850569, subnet-001cfe32c63240de9, subnet-03ac8617e3445dace" ##Those are the ones when have NAT GW fixed
 
   EcsAlbArn:
     Type: String
