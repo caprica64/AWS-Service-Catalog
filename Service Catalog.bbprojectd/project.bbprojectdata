@@ -6,6 +6,7 @@
 	<array>
 		<string>216FBBCE-36FA-479D-8536-EAB728C57909</string>
 		<string>A5431FBA-16E1-4B53-BF71-DFD6B0CF4F26</string>
+		<string>5016F0D6-D4D8-4674-A4BE-92FE014C6D10</string>
 	</array>
 	<key>ProjectItems</key>
 	<dict>
@@ -50,6 +51,50 @@
 			</dict>
 			<key>ItemName</key>
 			<string>vpc.yaml</string>
+			<key>ItemType</key>
+			<string>FileReference</string>
+		</dict>
+		<key>5016F0D6-D4D8-4674-A4BE-92FE014C6D10</key>
+		<dict>
+			<key>ItemData</key>
+			<dict>
+				<key>BookmarkData</key>
+				<data>
+				Ym9va7ACAAAAAAQQMAAAAOutjKIqCG2z7EEaceLZ3LKw
+				W3aIHwR2JpjpNV/q57S90AEAAAQAAAADAwAAAAgAKAUA
+				AAABAQAAVXNlcnMAAAAGAAAAAQEAAFNoYXJlZAAABAAA
+				AAEBAABMYWJzEwAAAAEBAABBV1MtU2VydmljZS1DYXRh
+				bG9nABQAAAABAQAAdnBjLW5hdC1nYXRld2F5LnlhbWwU
+				AAAAAQYAABAAAAAgAAAAMAAAADwAAABYAAAACAAAAAQD
+				AACsYAAAAAAAAAgAAAAEAwAArmAAAAAAAAAIAAAABAMA
+				ALD7SAIAAAAACAAAAAQDAAAKP8MCAAAAAAgAAAAEAwAA
+				82zWAgAAAAAUAAAAAQYAAJAAAACgAAAAsAAAAMAAAADQ
+				AAAACAAAAAAEAABBw+8GRkEHBRgAAAABAgAAAQAAAAAA
+				AAAPAAAAAAAAAAAAAAAAAAAACAAAAAEJAABmaWxlOi8v
+				LwwAAAABAQAATWFjaW50b3NoIEhECAAAAAQDAAAAwEQT
+				vwEAAAgAAAAABAAAQcPYOcGAAAAkAAAAAQEAAEM5RkQ5
+				RDJELTEzN0YtNDg0MS05MDA1LUQwNTE0MjdGRUU4QRgA
+				AAABAgAAgQAAAAEAAADvEwAAAQAAAAAAAAAAAAAAAQAA
+				AAEBAAAvAAAAAAAAAAEFAACoAAAA/v///wEAAAAAAAAA
+				DQAAAAQQAAB0AAAAAAAAAAUQAADgAAAAAAAAABAQAAAM
+				AQAAAAAAAEAQAAD8AAAAAAAAAAIgAAC8AQAAAAAAAAUg
+				AAAsAQAAAAAAABAgAAA8AQAAAAAAABEgAABwAQAAAAAA
+				ABIgAABQAQAAAAAAABMgAABgAQAAAAAAACAgAACcAQAA
+				AAAAADAgAADIAQAAAAAAABDQAAAEAAAAAAAAAA==
+				</data>
+				<key>FileURL</key>
+				<string>file:///Users/Shared/Labs/AWS-Service-Catalog/vpc-nat-gateway.yaml</string>
+				<key>HasSecurityScope</key>
+				<true/>
+				<key>RelativePath</key>
+				<string>./vpc-nat-gateway.yaml</string>
+				<key>TypeID</key>
+				<string>_CFileLocator</string>
+				<key>Version</key>
+				<integer>1</integer>
+			</dict>
+			<key>ItemName</key>
+			<string>vpc-nat-gateway.yaml</string>
 			<key>ItemType</key>
 			<string>FileReference</string>
 		</dict>
