@@ -16,6 +16,11 @@ Parameters:
     Default: "Cluster"
     Description: "Enter a cluster name"
 
+  DomainName:
+    Type: String
+    Default: "caprica.tech"
+    Description: "Enter the domain name of the project"
+
   Environment:
     Description: "Select appropriate environment type"
     Type: String
@@ -90,7 +95,7 @@ Resources:
         - IpProtocol: tcp
           FromPort: 80
           ToPort: 49191
-          CidrIp: 0.0.0.0/0 ##TO DO << Replace with a VPC import
+          CidrIp: 0.0.0.0/0
           Description: "Egress to ECS Service"
       #---- Resource Tag block ----#
       Tags:
@@ -138,12 +143,12 @@ Resources:
         ContentType: "text/html"
         MessageBody: "We apologise, but this is a nonexistent service"
         StatusCode: "503"
-       #TargetGroupArn: !Ref "EcsTg"
+       #TargetGroupArn: !Ref "EcsTg" ## << Placeholder in case one wants to use this directly with TG
      LoadBalancerArn: !Ref EcsAlb
      Port: 443
      Protocol: HTTPS   
 
-  AlbHttplistener:
+  AlbHttplistener: ## << The role of this listener role is to redirect any unencrypted traffic to TLS above
    Type: "AWS::ElasticLoadBalancingV2::Listener"
    Properties:
      DefaultActions:
@@ -209,6 +214,23 @@ Outputs:
       Name: !Sub "${AWS::StackName}-EcsAlbName"
     Description: "Name of the ECS ALB"
     
-  OutPutListenerArn:
-    Value: !Ref AlbSecureListener
-    Description: "Listener ARN"           
+  OutputListenerArn:
+    Value:
+      !Ref AlbSecureListener
+    Description: "Listener ARN"  
+    Export:
+      Name: !Sub "${AWS::StackName}-OutputAlbSecureListener"  
+    
+  OutputDomainName:
+    Value:
+      !Ref DomainName
+    Description: "The domain name of the project"  
+    Export:
+      Name: !Sub "${AWS::StackName}-OutputDomainName"  
+    
+  OutputALBSecurityGroup:
+    Value:
+      !Ref ALBSecurityGroup
+    Description: "Security Group ID of the ALB"
+    Export:
+      Name: !Sub "${AWS::StackName}-OutputALBSecurityGroup"       
