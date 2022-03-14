@@ -1,5 +1,5 @@
 # AWS-Service-Catalog
-AWS Service Catalog project to set up basic VPC and a DevOps pipeline
+AWS Service Catalog project to set up basic VPC and a DevOps pipeline. Initial setup will allow the sequencial use of CloudFormation templates to create a VPC, Network Gateway with updated routes, than one ECS Cluster with an ALB and later multiple ECS Services.
 
 2022-02-26 > Added vpc.yaml intially tested
 2022-03-13 > Added NAT Gateway template, tested Service Catalog. Added ECS/ALB Stack and added Service/Task stack.
