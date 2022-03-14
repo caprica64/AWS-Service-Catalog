@@ -1,0 +1,48 @@
+version: 0.2
+
+# Added proxy statement for build image
+#proxy:
+#  upload-artifacts: yes
+#  logs: yes
+
+# Proxy seetting placeholder for the build environment.
+#env:
+#  variables:
+#    http_proxy: "http://10.1.1.102"
+#    https_proxy: "https://10.1.1.102"
+#    no_proxy: "169.254.169.254,169.254.170.2,localhost,127.0.0.1"
+
+phases:
+  install:
+    runtime-versions:
+      docker: 19
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws --version
+      - $(aws ecr get-login --region $AWS_DEFAULT_REGION --no-include-email)
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - IMAGE_TAG=${COMMIT_HASH:=latest}
+      # - aws s3 sync s3://$VARS_S3_BUCKET/$APP_NAME_S3_FOLDER/$ENVIRONMENT/ .
+      - echo "Showing environment variables"
+      - echo $AWS_DEFAULT_REGION
+      - echo $COMMIT_HASH
+      - echo $IMAGE_TAG
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Building the Docker image...          
+      - docker build -t $REPOSITORY_URI:latest .
+      - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Pushing the Docker images...
+      - docker push $REPOSITORY_URI:latest
+      - docker push $REPOSITORY_URI:$IMAGE_TAG
+      - echo Writing image definitions file...
+      ### Next line define container image name i.e. "nginx", "app1" - possible we could use an environment variable here
+      - printf "[{\"name\":\"container1\",\"imageUri\":\"%s\"}]" $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
+      - cat imagedefinitions.json
+artifacts:
+    files: imagedefinitions.json

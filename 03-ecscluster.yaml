@@ -15,7 +15,7 @@ Parameters:
   Environment:
     Description: "Select appropriate environment type"
     Type: String
-    Default: "non-prod"
+    Default: "prod"
     AllowedValues:
       - non-prod
       - prod
@@ -30,6 +30,14 @@ Parameters:
     Default: "DevOps"
     Description: "Enter project name"
   #------------------------------#
+
+  #------------------------------------------#
+  # Certificates                             #
+  #------------------------------------------#
+  PrivateCAArn:
+    Type: String
+    Description: The ARN of the PrivateCA
+    Default: "arn:aws:acm:us-east-1:861211186414:certificate/726e2b03-e2c2-4492-b1ca-80c6303f0862"
 
 
   #------------------------------------------#
@@ -130,6 +138,40 @@ Resources:
         - Key: "Name"
           Value: "ECS Application Load Balancer"
       #----------------------------#
+
+  AlbSecureListener:  #<<Placeholder to use Secure Listener in the same stack. It works for differente listeners ports per service
+                     #if one likes to build for this purpose.
+   Type: AWS::ElasticLoadBalancingV2::Listener
+   Properties:
+     Certificates: 
+       - CertificateArn: !Ref PrivateCAArn
+     DefaultActions:
+     - Type: "fixed-response"
+       FixedResponseConfig:
+        ContentType: "text/html"
+        MessageBody: "We apologise, but this is a nonexistent service"
+        StatusCode: "503"
+       #TargetGroupArn: !Ref "EcsTg"
+     LoadBalancerArn: !Ref EcsAlb
+     Port: 443
+     Protocol: HTTPS   
+
+  AlbHttplistener:
+   Type: "AWS::ElasticLoadBalancingV2::Listener"
+   Properties:
+     DefaultActions:
+       - Type: "redirect"
+         RedirectConfig:
+           Protocol: "HTTPS"
+           Port: 443
+           Host: "#{host}"
+           Path: "/#{path}"
+           Query: "#{query}"
+           StatusCode: "HTTP_301"
+     LoadBalancerArn: !Ref EcsAlb
+     Port: 80
+     Protocol: "HTTP"
+
 
   #---- ECS Cluster block ----#
   EcsCluster:

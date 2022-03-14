@@ -10,37 +10,36 @@ Parameters:
   ServicePort:
     Type: Number
     Description: "Entre com o valor inl da porta de serviço"
-    Default: 8080
+    Default: 80
 
   VpcId:
     Type: String
-    Default: "vpc-0d1ba0a444b307b4d"
+    Default: "vpc-073b78bffc9dc6062"
     Description: "Enter the VPC Id where the services are based on"
 
   AlbSubnet:
     Type: List<AWS::EC2::Subnet::Id>
     Description: "Choose the public subnets for the ALB"
-    Default: "subnet-04a48ac869a48de0b, subnet-0473279a433efcbe6, subnet-05e308bfdbb4d8fc6" ##Publics so we don't need NAT GW for awhile
-    #Default: "subnet-00ff8f9ba17850569, subnet-001cfe32c63240de9, subnet-03ac8617e3445dace" ##Those are the ones when have NAT GW fixed
-
+    Default: "subnet-060b623208e8cf6e8, subnet-0d830fb13ff263221, subnet-065c827af512cb6cc"
+    
   EcsAlbArn:
     Type: String
-    Default: "arn:aws:elasticloadbalancing:us-east-1:861211186414:loadbalancer/app/ECS-S-EcsAl-1UB1317EJ4JBE/33d74acee46444a5"
+    Default: "arn:aws:elasticloadbalancing:us-east-1:861211186414:loadbalancer/app/ecs-c-EcsAl-I7RD94Q56GO5/1aca25e36b470ff3"
     Description: "Enter the VPC Id where the services are based on"
 
   AlbSecurityGroup:
     Type: String
-    Default: "sg-023666945cac3b9b0"
+    Default: "sg-0101e69ad4f97f3e8"
     Description: "Enter the ALB Security Group ID to allow inbound access from the ALB"
  
   ECRRepoUri:
    Type: String
-   Default: "861211186414.dkr.ecr.us-east-1.amazonaws.com/app1"
+   Default: "861211186414.dkr.ecr.us-east-1.amazonaws.com/svc1"
    Description: "Repo URI"
   
   EcsCluster:
     Type: String
-    Default: "Cluster1"
+    Default: "Cluster2"
     
   #------------------------------------------#
   # Certificates                             #
@@ -145,17 +144,18 @@ Resources:
   #------------------------------------------#
   # ALB Secure Listener, Rules and certs     #
   #------------------------------------------#
-  ALBSecureListener:
-    Type: AWS::ElasticLoadBalancingV2::Listener
-    Properties:
-      Certificates: 
-        - CertificateArn: !Ref PrivateCAArn
-      DefaultActions:
-      - Type: forward
-        TargetGroupArn: !Ref "EcsTg"
-      LoadBalancerArn: !Ref "EcsAlbArn" ##TO-DO << fix to import stack value
-      Port: 443
-      Protocol: HTTPS       
+#  ALBSecureListener:  << Placeholder to use Secure Listener in the same stack. It works for differente listeners ports per service
+#                        #if one likes to build for this purpose.
+#    Type: AWS::ElasticLoadBalancingV2::Listener
+#    Properties:
+#      Certificates: 
+#        - CertificateArn: !Ref PrivateCAArn
+#      DefaultActions:
+#      - Type: forward
+#        TargetGroupArn: !Ref "EcsTg"
+#      LoadBalancerArn: !Ref "EcsAlbArn" ##TO-DO << fix to import stack value
+#      Port: 443
+#      Protocol: HTTPS       
     
   ECSALBSecureListenerRule:
     Type: AWS::ElasticLoadBalancingV2::ListenerRule
@@ -176,7 +176,7 @@ Resources:
         HttpHeaderConfig:
           HttpHeaderName: Referer
           Values:
-           - "https://svc1.caprica.tech"
+           - "https://svc1.caprica.tech"  ##TO-DO << Try to use a join and sub for the service hostname match.
       ListenerArn: !Ref 'ALBSecureListener'
       Priority: 1  
  
@@ -246,7 +246,7 @@ Resources:
         - Essential: true
           Image:
             Ref: ECRRepoUri
-          Name: !Sub "${ServiceName}-app"
+          Name: !Sub "${ServiceName}"
           PortMappings:
             - ContainerPort: !Ref ServicePort
               # HostPort: 80
@@ -310,6 +310,6 @@ Resources:
       TaskDefinition:
         Ref: EcsTaskDefinition
       LoadBalancers:
-      - ContainerName: !Sub "${ServiceName}-app" 
+      - ContainerName: !Sub "${ServiceName}" 
         ContainerPort: !Ref ServicePort
         TargetGroupArn: !Ref EcsTg        
