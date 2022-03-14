@@ -131,7 +131,15 @@ Resources:
       Protocol: HTTP
       UnhealthyThresholdCount: 2
       VpcId: !Ref VpcId
-  
+      #--------Resource Tag block--------#
+      Tags:
+        - Key: "Owner"
+          Value: !Ref ParOwner
+        - Key: "Project"
+          Value: !Ref ParProject
+        - Key: "Name"
+          Value: !Sub "${ServiceName}-TG"
+      #--------Resource Tag block--------#   
 
 
   #------------------------------------------#
@@ -168,7 +176,7 @@ Resources:
         - Field: host-header
           HostHeaderConfig:
             Values:
-              - "svc1.domain.tech"  ##TO-DO << Try to use a join and sub for the service hostname match.
+              - "svc1.caprica.tech"  ##TO-DO << Try to use a join and sub for the service hostname match.
       ListenerArn: !Ref 'AlbSecureListener' ##TO-DO << Export ListenerArn from the ECS/ALB stack and import here.
       Priority: 1  
  
