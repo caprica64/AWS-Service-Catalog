@@ -22,33 +22,6 @@ Parameters:
     Description: "Entre com o valor inl da porta de serviço"
     Default: 80
 
-####### To delete below ######
-#  VpcId:
-#    Type: String
-#    Default: "vpc-073b78bffc9dc6062"
-#    Description: "Enter the VPC Id where the services are based on"
-
-#  AlbSubnet:
-#    Type: List<AWS::EC2::Subnet::Id>
-#    Description: "Choose the public subnets for the ALB"
-#    Default: "subnet-060b623208e8cf6e8, subnet-0d830fb13ff263221, subnet-065c827af512cb6cc"
-
-#  EcsCluster:
-#    Type: String
-#    Default: "Cluster2"
-# 
-#  AlbSecureListener:
-#    Type: String
-#    Default: "arn:aws:elasticloadbalancing:us-east-1:861211186414:listener/app/ecs-c-EcsAl-I7RD94Q56GO5/1aca25e36b470ff3/b973e5085a7507ee"
-#    Description: "Enter the Secure Listener ARN"
-#
-#  AlbSecurityGroup:
-#    Type: String
-#    Default: "sg-0101e69ad4f97f3e8"
-#    Description: "Enter the ALB Security Group ID to allow inbound access from the ALB"
- 
-####### To delete above ######
-
   ECRRepoUri:
    Type: String
    Default: "861211186414.dkr.ecr.us-east-1.amazonaws.com/svc1"
@@ -316,9 +289,9 @@ Resources:
           SecurityGroups:
             - !Ref ServiceSecurityGroup
           Subnets:
-            - {'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetAPublic'}
-            - {'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetBPublic'}        
-            - {'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetCPublic'}            
+            - {'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetAPrivate'}
+            - {'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetBPrivate'}        
+            - {'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetCPrivate'}            
       ServiceName: !Sub "${ServiceName}-service"
       TaskDefinition:
         Ref: EcsTaskDefinition
