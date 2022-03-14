@@ -10,6 +10,7 @@
 		<string>533F4C83-AFCB-43A6-9672-FA8E195AF1F2</string>
 		<string>98D79D0A-9C99-4EF7-8D6A-921B7D529FCD</string>
 		<string>E10A3F4E-33FA-4376-BA17-9844798418A3</string>
+		<string>ADCF0AFC-BB2F-4BEB-8204-68272C9B47A4</string>
 	</array>
 	<key>ProjectItems</key>
 	<dict>
@@ -240,6 +241,50 @@
 			<string>README.md</string>
 			<key>ItemType</key>
 			<string>FileReference</string>
+		</dict>
+		<key>ADCF0AFC-BB2F-4BEB-8204-68272C9B47A4</key>
+		<dict>
+			<key>ItemData</key>
+			<dict>
+				<key>BookmarkData</key>
+				<data>
+				Ym9va6gCAAAAAAQQMAAAAC8jNv2MkYfNviBDsOzQdnPU
+				oHlV/ND3sTIXspzD5RT6yAEAAAQAAAADAwAAAAgAKAUA
+				AAABAQAAVXNlcnMAAAAGAAAAAQEAAFNoYXJlZAAABAAA
+				AAEBAABMYWJzEwAAAAEBAABBV1MtU2VydmljZS1DYXRh
+				bG9nAAkAAAABAQAAY29udGFpbmVyAAAAFAAAAAEGAAAQ
+				AAAAIAAAADAAAAA8AAAAWAAAAAgAAAAEAwAArGAAAAAA
+				AAAIAAAABAMAAK5gAAAAAAAACAAAAAQDAACw+0gCAAAA
+				AAgAAAAEAwAACj/DAgAAAAAIAAAABAMAAICX2AIAAAAA
+				FAAAAAEGAACIAAAAmAAAAKgAAAC4AAAAyAAAAAgAAAAA
+				BAAAQcPvxN6+zNoYAAAAAQIAAAIAAAAAAAAADwAAAAAA
+				AAAAAAAAAAAAAAgAAAABCQAAZmlsZTovLy8MAAAAAQEA
+				AE1hY2ludG9zaCBIRAgAAAAEAwAAAMBEE78BAAAIAAAA
+				AAQAAEHD2DnBgAAAJAAAAAEBAABDOUZEOUQyRC0xMzdG
+				LTQ4NDEtOTAwNS1EMDUxNDI3RkVFOEEYAAAAAQIAAIEA
+				AAABAAAA7xMAAAEAAAAAAAAAAAAAAAEAAAABAQAALwAA
+				AAAAAAABBQAAqAAAAP7///8BAAAAAAAAAA0AAAAEEAAA
+				bAAAAAAAAAAFEAAA2AAAAAAAAAAQEAAABAEAAAAAAABA
+				EAAA9AAAAAAAAAACIAAAtAEAAAAAAAAFIAAAJAEAAAAA
+				AAAQIAAANAEAAAAAAAARIAAAaAEAAAAAAAASIAAASAEA
+				AAAAAAATIAAAWAEAAAAAAAAgIAAAlAEAAAAAAAAwIAAA
+				wAEAAAAAAAAQ0AAABAAAAAAAAAA=
+				</data>
+				<key>FileURL</key>
+				<string>file:///Users/Shared/Labs/AWS-Service-Catalog/container/</string>
+				<key>HasSecurityScope</key>
+				<true/>
+				<key>RelativePath</key>
+				<string>./container</string>
+				<key>TypeID</key>
+				<string>_CFileLocator</string>
+				<key>Version</key>
+				<integer>1</integer>
+			</dict>
+			<key>ItemName</key>
+			<string>container</string>
+			<key>ItemType</key>
+			<string>FolderReference</string>
 		</dict>
 		<key>E10A3F4E-33FA-4376-BA17-9844798418A3</key>
 		<dict>
