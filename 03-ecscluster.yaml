@@ -139,8 +139,7 @@ Resources:
           Value: "ECS Application Load Balancer"
       #----------------------------#
 
-  AlbSecureListener:  #<<Placeholder to use Secure Listener in the same stack. It works for differente listeners ports per service
-                     #if one likes to build for this purpose.
+  AlbSecureListener:
    Type: AWS::ElasticLoadBalancingV2::Listener
    Properties:
      Certificates: 
@@ -220,4 +219,8 @@ Outputs:
     Value: !GetAtt EcsAlb.LoadBalancerFullName
     Export:
       Name: !Sub "${AWS::StackName}-EcsAlbName"
-    Description: "Name of the ECS ALB"       
+    Description: "Name of the ECS ALB"
+    
+  OutPutListenerArn:
+    Value: !Ref AlbSecureListener
+    Description: "Listener ARN"           

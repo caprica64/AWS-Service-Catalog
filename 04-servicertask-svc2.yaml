@@ -5,7 +5,7 @@ Parameters:
   ServiceName:
     Type: String
     Description: "Please put the ServiceName that you would like to create"
-    Default: "svc1"
+    Default: "svc2"
 
   ServicePort:
     Type: Number
@@ -22,10 +22,10 @@ Parameters:
     Description: "Choose the public subnets for the ALB"
     Default: "subnet-060b623208e8cf6e8, subnet-0d830fb13ff263221, subnet-065c827af512cb6cc"
     
-  EcsAlbArn:
+  AlbSecureListener:
     Type: String
-    Default: "arn:aws:elasticloadbalancing:us-east-1:861211186414:loadbalancer/app/ecs-c-EcsAl-I7RD94Q56GO5/1aca25e36b470ff3"
-    Description: "Enter the VPC Id where the services are based on"
+    Default: "arn:aws:elasticloadbalancing:us-east-1:861211186414:listener/app/ecs-c-EcsAl-I7RD94Q56GO5/1aca25e36b470ff3/b973e5085a7507ee"
+    Description: "Enter the Secure Listener ARN"
 
   AlbSecurityGroup:
     Type: String
@@ -41,13 +41,6 @@ Parameters:
     Type: String
     Default: "Cluster2"
     
-  #------------------------------------------#
-  # Certificates                             #
-  #------------------------------------------#
-  PrivateCAArn:
-    Type: String
-    Description: The ARN of the PrivateCA
-    Default: "arn:aws:acm:us-east-1:861211186414:certificate/726e2b03-e2c2-4492-b1ca-80c6303f0862"
 
     
   #---- Tag block parameters ----#
@@ -144,20 +137,20 @@ Resources:
   #------------------------------------------#
   # ALB Secure Listener, Rules and certs     #
   #------------------------------------------#
-#  ALBSecureListener:  << Placeholder to use Secure Listener in the same stack. It works for differente listeners ports per service
-#                        #if one likes to build for this purpose.
-#    Type: AWS::ElasticLoadBalancingV2::Listener
-#    Properties:
-#      Certificates: 
-#        - CertificateArn: !Ref PrivateCAArn
-#      DefaultActions:
-#      - Type: forward
-#        TargetGroupArn: !Ref "EcsTg"
-#      LoadBalancerArn: !Ref "EcsAlbArn" ##TO-DO << fix to import stack value
-#      Port: 443
-#      Protocol: HTTPS       
+  #ALBSecureListener:  << Placeholder to use Secure Listener in the same stack. It works for differente listeners ports per service
+  #                      #if one likes to build for this purpose.
+  #  Type: AWS::ElasticLoadBalancingV2::Listener
+  #  Properties:
+  #    Certificates: 
+  #      - CertificateArn: !Ref PrivateCAArn
+  #    DefaultActions:
+  #    - Type: forward
+  #      TargetGroupArn: !Ref "EcsTg"
+  #    LoadBalancerArn: !Ref "EcsAlbArn" ##TO-DO << fix to import stack value
+  #    Port: 443
+  #    Protocol: HTTPS       
     
-  ECSALBSecureListenerRule:
+  EcsAlbSecureListenerRule:
     Type: AWS::ElasticLoadBalancingV2::ListenerRule
     Properties:
       Actions:
@@ -172,13 +165,21 @@ Resources:
             DurationSeconds: 86400
             Enabled: true
       Conditions:
-      - Field: http-header
-        HttpHeaderConfig:
-          HttpHeaderName: Referer
-          Values:
-           - "https://svc1.caprica.tech"  ##TO-DO << Try to use a join and sub for the service hostname match.
-      ListenerArn: !Ref 'ALBSecureListener'
-      Priority: 1  
+        - Field: host-header
+          HostHeaderConfig:
+            Values:
+              - "svc2.domain.tech"  ##TO-DO << Try to use a join and sub for the service hostname match.
+      ListenerArn: !Ref 'AlbSecureListener' ##TO-DO << Export ListenerArn from the ECS/ALB stack and import here.
+      Priority: 2 
+
+# Example of httP header rule
+#      - Field: http-header
+#        HttpHeaderConfig:
+#          HttpHeaderName: Referer
+#          Values:
+#           - "https://svc2.domain.tech"  ##TO-DO << Try to use a join and sub for the service hostname match.
+#      ListenerArn: !Ref 'AlbSecureListener' ##TO-DO << Export ListenerArn from the ECS/ALB stack and import here.
+#      Priority: 2  
  
   #------------------------------------------#
   # Execution roles and policies             #

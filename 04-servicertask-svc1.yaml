@@ -1,0 +1,308 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: "Cluster template for ECS/Fargate"
+
+Parameters:
+  ServiceName:
+    Type: String
+    Description: "Please put the ServiceName that you would like to create"
+    Default: "svc1"
+
+  ServicePort:
+    Type: Number
+    Description: "Entre com o valor inl da porta de serviço"
+    Default: 80
+
+  VpcId:
+    Type: String
+    Default: "vpc-073b78bffc9dc6062"
+    Description: "Enter the VPC Id where the services are based on"
+
+  AlbSubnet:
+    Type: List<AWS::EC2::Subnet::Id>
+    Description: "Choose the public subnets for the ALB"
+    Default: "subnet-060b623208e8cf6e8, subnet-0d830fb13ff263221, subnet-065c827af512cb6cc"
+    
+  AlbSecureListener:
+    Type: String
+    Default: "arn:aws:elasticloadbalancing:us-east-1:861211186414:listener/app/ecs-c-EcsAl-I7RD94Q56GO5/1aca25e36b470ff3/b973e5085a7507ee"
+    Description: "Enter the Secure Listener ARN"
+
+  AlbSecurityGroup:
+    Type: String
+    Default: "sg-0101e69ad4f97f3e8"
+    Description: "Enter the ALB Security Group ID to allow inbound access from the ALB"
+ 
+  ECRRepoUri:
+   Type: String
+   Default: "861211186414.dkr.ecr.us-east-1.amazonaws.com/svc1"
+   Description: "Repo URI"
+  
+  EcsCluster:
+    Type: String
+    Default: "Cluster2"
+    
+
+    
+  #---- Tag block parameters ----#
+  ParOwner:
+    Type: String
+    Default: "User"
+    Description: "Enter the cluster owner"
+  ParProject:
+    Type: String
+    Default: "DevOps"
+    Description: "Enter project name"
+  #------------------------------#   
+
+
+
+#------------------------------#
+#          Resources           # 
+#------------------------------#    
+Resources:
+
+  #------------------------------------------#
+  # Service Security Group                   #
+  #------------------------------------------#
+  ServiceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+        GroupName: !Ref ServiceName
+        GroupDescription: Allows inbound traffic from ALB and outbound to internal services 
+        VpcId:
+          Ref: VpcId
+        SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: !Ref ServicePort
+          ToPort: !Ref ServicePort
+          Description: Allow ALB to reach container service port
+          SourceSecurityGroupId:
+            !Ref AlbSecurityGroup
+        #--------Resource Tag block--------#
+        Tags:
+        - Key: "Owner"
+          Value: !Ref ParOwner
+        - Key: "Project"
+          Value: !Ref ParProject
+        - Key: "Name"
+          Value: "Container Service Security Group"        
+        #--------Resource Tag block--------# 
+
+  #------------------------------------------#
+  # Service LogGroup                         #
+  #------------------------------------------# 
+  ServiceLogsGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "${ServiceName}-service-logs"
+      RetentionInDays: 5
+      #--------Resource Tag block--------#
+      Tags:
+        - Key: "Owner"
+          Value: !Ref ParOwner
+        - Key: "Project"
+          Value: !Ref ParProject
+        - Key: "Name"
+          Value: "Service Log Group"
+      #--------Resource Tag block--------#    
+    #UpdateReplacePolicy: Retain
+    #DeletionPolicy: Retain
+
+    
+  #------------------------------------------#
+  # Target Group                             #
+  #------------------------------------------#
+  EcsTg:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    #DependsOn: ECSALB
+    Properties:
+      HealthCheckIntervalSeconds: 120
+      HealthCheckPath: /
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 10
+      HealthyThresholdCount: 2
+      TargetGroupAttributes:
+        - Key: stickiness.enabled
+          Value: 'true'
+        - Key: stickiness.type
+          Value: 'lb_cookie'
+      TargetType: ip
+      Port: !Ref ServicePort
+      Protocol: HTTP
+      UnhealthyThresholdCount: 2
+      VpcId: !Ref VpcId
+  
+
+
+  #------------------------------------------#
+  # ALB Secure Listener, Rules and certs     #
+  #------------------------------------------#
+  #ALBSecureListener:  << Placeholder to use Secure Listener in the same stack. It works for differente listeners ports per service
+  #                      #if one likes to build for this purpose.
+  #  Type: AWS::ElasticLoadBalancingV2::Listener
+  #  Properties:
+  #    Certificates: 
+  #      - CertificateArn: !Ref PrivateCAArn
+  #    DefaultActions:
+  #    - Type: forward
+  #      TargetGroupArn: !Ref "EcsTg"
+  #    LoadBalancerArn: !Ref "EcsAlbArn" ##TO-DO << fix to import stack value
+  #    Port: 443
+  #    Protocol: HTTPS       
+    
+  EcsAlbSecureListenerRule:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      Actions:
+      - Type: forward
+        TargetGroupArn: !Ref 'EcsTg'
+        Order: 1
+        ForwardConfig:
+          TargetGroups: 
+            - TargetGroupArn: !Ref EcsTg
+              Weight: 1
+          TargetGroupStickinessConfig:
+            DurationSeconds: 86400
+            Enabled: true
+      Conditions:
+        - Field: host-header
+          HostHeaderConfig:
+            Values:
+              - "svc1.domain.tech"  ##TO-DO << Try to use a join and sub for the service hostname match.
+      ListenerArn: !Ref 'AlbSecureListener' ##TO-DO << Export ListenerArn from the ECS/ALB stack and import here.
+      Priority: 1  
+ 
+ 
+  #------------------------------------------#
+  # Execution roles and policies             #
+  #------------------------------------------#      
+  EcsExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+        Version: "2012-10-17"
+      RoleName: !Sub "${ServiceName}-execution-role"
+      Policies:
+      - PolicyName: !Sub "${ServiceName}-parameter-and-secrets-access"
+        PolicyDocument:
+          Statement:
+          - Effect: Allow
+            Action: ["ssm:GetParameters", "secretsmanager:GetSecretValue", "kms:Decrypt"]
+            Resource:
+            - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/*"
+            - !Sub "arn:aws:secretmanager:${AWS::Region}:${AWS::AccountId}:secret:*"
+            - !Sub "arn:aws:kms:${AWS::Region}:${AWS::AccountId}:key/*"  
+   
+  EcsExecutionRoleDefaultPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - ecr:GetAuthorizationToken
+              - ecr:BatchCheckLayerAvailability
+              - ecr:GetDownloadUrlForLayer
+              - ecr:BatchGetImage
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Effect: Allow
+            Resource: "*"
+        Version: "2012-10-17"
+      PolicyName: !Sub "${ServiceName}-EcsExecutionRoleDefaultPolicy"
+      Roles:
+        - Ref: EcsExecutionRole  
+
+  EcsTaskDefinitionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+        Version: "2012-10-17"
+         
+  #------------------------------------------#
+  # Service and task setup                   #
+  #------------------------------------------#
+  
+  EcsTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      ContainerDefinitions:
+        - Essential: true
+          Image:
+            Ref: ECRRepoUri
+          Name: !Sub "${ServiceName}"
+          PortMappings:
+            - ContainerPort: !Ref ServicePort
+              # HostPort: 80
+              Protocol: tcp  
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-stream-prefix: !Sub ${ServiceName}
+              awslogs-group: !Ref ServiceLogsGroup
+              awslogs-region: !Sub '${AWS::Region}'   
+          #------Parameters and Secrets ------#
+          #Secrets:
+            #----- Parameter Store item -----#
+            #  Can be prefixed or ARN based  #
+            # - Name: Parameter1
+            #   ValueFrom: /Service1/Parameter1 
+            # - Name: Parameter2
+            #   ValueFrom: /Service1/Parameter2 
+            #----- Parameter Store item -----#
+            # - Name: ServicePassword1
+            #   ValueFrom: 
+            #     !Sub 
+            #       - '${EnvSecret}:ServicePassword1::'
+            #       - EnvSecret: !ImportValue Service1SecretArn
+          #---------- Secrets ---------------#            
+      Cpu: "1024"
+      ExecutionRoleArn:
+        Fn::GetAtt:
+          - EcsExecutionRole
+          - Arn
+      Family: !Sub "${ServiceName}-task-definition"
+      Memory: "2048"
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      TaskRoleArn:
+        Fn::GetAtt:
+          - EcsTaskDefinitionRole
+          - Arn
+     
+  EcsService:
+    Type: AWS::ECS::Service
+    Properties:
+      Cluster: #We can refer cluster in a different way such as below.
+        Ref: EcsCluster
+      DeploymentConfiguration:
+        MaximumPercent: 200
+        MinimumHealthyPercent: 50
+      EnableECSManagedTags: false
+      LaunchType: FARGATE
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: DISABLED
+          SecurityGroups:
+            - !Ref ServiceSecurityGroup
+          Subnets: ##TO-DO << Replace with imported values
+            - !Select [0, !Ref AlbSubnet]
+            - !Select [1, !Ref AlbSubnet]
+            - !Select [2, !Ref AlbSubnet]
+      ServiceName: !Sub "${ServiceName}-service"
+      TaskDefinition:
+        Ref: EcsTaskDefinition
+      LoadBalancers:
+      - ContainerName: !Sub "${ServiceName}" 
+        ContainerPort: !Ref ServicePort
+        TargetGroupArn: !Ref EcsTg        
