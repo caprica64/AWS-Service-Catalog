@@ -130,7 +130,7 @@ Resources:
       Port: !Ref ServicePort
       Protocol: HTTP
       UnhealthyThresholdCount: 2
-      VpcId: !Ref VpcId
+      VpcId: !Ref VpcId ##TO-DO << Import VPC
       #--------Resource Tag block--------#
       Tags:
         - Key: "Owner"

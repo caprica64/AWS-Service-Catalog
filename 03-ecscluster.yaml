@@ -7,6 +7,10 @@ Description: "Cluster template for ECS with Fargate"
 #--------------#
 
 Parameters:
+  ParentVPCStack:
+    Description: 'Parent VPC Stack name.'
+    Type: String
+
   ParClusterName:
     Type: String
     Default: "Cluster"
@@ -39,19 +43,6 @@ Parameters:
     Description: The ARN of the PrivateCA
     Default: "arn:aws:acm:us-east-1:861211186414:certificate/726e2b03-e2c2-4492-b1ca-80c6303f0862"
 
-
-  #------------------------------------------#
-  # Network, ALB subnet and security groups  #
-  #------------------------------------------#
-  AlbSubnet:
-    Type: List<AWS::EC2::Subnet::Id>
-    Description: "Choose the public subnets for the ALB"
-    Default: "subnet-04a48ac869a48de0b, subnet-0473279a433efcbe6, subnet-05e308bfdbb4d8fc6" 
-
-  VpcId:
-    Type: String
-    Description: "Select the VPC Id where your resources will be located"
-    Default: "vpc-0d1ba0a444b307b4d"
       
 
 #--------------#
@@ -83,8 +74,7 @@ Resources:
     Properties:
       GroupName: ALBSecurityGroup  
       GroupDescription: Allows inbound traffic to ALB and outbound to ECS Service
-      VpcId:
-        Ref: VpcId ##TO-DO << Import VpcID from the output stack name for the VPC.
+      VpcId: {'Fn::ImportValue': !Sub '${ParentVPCStack}-VPC'}
       SecurityGroupIngress:
         - IpProtocol: tcp
           CidrIp: !If [IsProdEnv, "0.0.0.0/0", "10.0.0.0/16"] 
@@ -112,6 +102,7 @@ Resources:
           Value: "ALB Security Group"
       #----------------------------#
 
+
   EcsAlb:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
@@ -119,14 +110,10 @@ Resources:
       LoadBalancerAttributes:
         - Key: idle_timeout.timeout_seconds
           Value: '30'
-        # Subnets: ##TO-DO << Import from the network stack
-        #   - !ImportValue SubnetAPublic
-        #   - !ImportValue SubnetBPublic
-        #   - !ImportValue SubnetVPublic
       Subnets:
-        - !Select [0, !Ref AlbSubnet]
-        - !Select [1, !Ref AlbSubnet]
-        - !Select [2, !Ref AlbSubnet]
+        - {'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetAPublic'}
+        - {'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetBPublic'}        
+        - {'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetCPublic'}         
       SecurityGroups:
         - !Ref ALBSecurityGroup
       #---- Resource Tag block ----#
@@ -138,6 +125,7 @@ Resources:
         - Key: "Name"
           Value: "ECS Application Load Balancer"
       #----------------------------#
+
 
   AlbSecureListener:
    Type: AWS::ElasticLoadBalancingV2::Listener
