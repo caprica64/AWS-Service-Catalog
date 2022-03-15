@@ -21,7 +21,7 @@ Parameters:
     Description: "Parent VPC Stack name"
     Type: String
     Default: "vpc"
-
+#//// Container settings ////#
   ServicePort:
     Type: Number
     Description: "Enter the service port number"
@@ -36,6 +36,30 @@ Parameters:
     Type: String
     Description: "Enter the health check pathname"
     Default: "/"
+    
+  Memory:
+    Type: Number
+    Description: "Select the memory size"
+    Default: 512
+    AllowedValues:
+    - 128
+    - 256
+    - 512
+    - 1024
+    - 2048
+    - 4096 
+    
+  Cpu:
+    Type: Number
+    Description: "Select the CPU capacity. One vCPU equals 1024"
+    Default: 256
+    AllowedValues:
+    - 256
+    - 512
+    - 1024
+    - 2048
+    - 4096   
+  #//// Container settings ////#
     
   #---- Tag block parameters ----#
   ParOwner:
@@ -268,13 +292,13 @@ Resources:
             #       - '${EnvSecret}:ServicePassword1::'
             #       - EnvSecret: !ImportValue Service1SecretArn
           #---------- Secrets ---------------#            
-      Cpu: "1024"
+      Cpu: !Ref Cpu
       ExecutionRoleArn:
         Fn::GetAtt:
           - EcsExecutionRole
           - Arn
       Family: !Join ["-",[{'Fn::ImportValue': !Sub '${ECRStackName}-ServiceName'},task-definition]]
-      Memory: "2048"
+      Memory: !Ref Memory
       NetworkMode: awsvpc
       RequiresCompatibilities:
         - FARGATE
