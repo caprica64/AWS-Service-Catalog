@@ -175,6 +175,9 @@ Resources:
       DefaultCapacityProviderStrategy:
         - CapacityProvider: FARGATE
           Weight: 1
+      ClusterSettings:
+        - Name: containerInsights
+          Value: enabled
       #---- Resource Tag block ----#
       ## Just a different notation example for Tagging
       Tags:
