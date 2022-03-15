@@ -103,8 +103,13 @@ Outputs:
     Description: "Container/task service name"
     
   OutputsServiceEcrArn:
-    Value:
-      Ref: EcrRepository
+    Value: !GetAtt EcrRepository.Arn
     Export:
       Name: !Sub "${AWS::StackName}-ServiceEcrArn"
     Description: "Service repository ARN"    
+      
+  OutputsServiceEcrUri:
+    Value: !GetAtt EcrRepository.RepositoryUri
+    Export:
+      Name: !Sub "${AWS::StackName}-ServiceEcrUri"
+    Description: "Service repository URI"        

@@ -2,10 +2,10 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: "Cluster template for ECS/Fargate"
 
 Parameters:
-  ServiceName:
-    Type: String
-    Description: "Please enter the ServiceName that you would like to create"
-    Default: "svc1"
+#  ServiceName:
+#    Type: String
+#    Description: "Please enter the ServiceName that you would like to create"
+#    Default: "svc1"
 
   ECRStackName:
     Type: String
@@ -63,7 +63,7 @@ Resources:
   ServiceSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-        GroupName: !Ref ServiceName
+        GroupName: {'Fn::ImportValue': !Sub '${ECRStackName}-ServiceName'}
         GroupDescription: Allows inbound traffic from ALB and outbound to internal services 
         VpcId: {'Fn::ImportValue': !Sub '${ParentVPCStack}-VPC'}
         SecurityGroupIngress:
@@ -88,7 +88,7 @@ Resources:
   ServiceLogsGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: !Sub "${ServiceName}-service-logs"
+      LogGroupName: !Join ["-",[{'Fn::ImportValue': !Sub '${ECRStackName}-ServiceName'},log-group]]
       RetentionInDays: 5
       #--------Resource Tag block--------#
       Tags:
@@ -132,7 +132,7 @@ Resources:
         - Key: "Project"
           Value: !Ref ParProject
         - Key: "Name"
-          Value: !Sub "${ServiceName}-TG"
+          Value: !Join ["-",[{'Fn::ImportValue': !Sub '${ECRStackName}-ServiceName'},TG]]
       #--------Resource Tag block--------#   
 
 
@@ -172,7 +172,7 @@ Resources:
             Values: ## << Here we can use an array to set up hostname by joining two values. They can be parameter ref or imported.
               - !Join
                   - '.'
-                  - - !Ref ServiceName
+                  - - {'Fn::ImportValue': !Sub '${ECRStackName}-ServiceName'}
                     - {'Fn::ImportValue': !Sub '${ClusterStackName}-OutputDomainName'}
       ListenerArn: {'Fn::ImportValue': !Sub '${ClusterStackName}-OutputAlbSecureListener'} 
       Priority: !Ref Priority 
@@ -191,9 +191,9 @@ Resources:
             Principal:
               Service: ecs-tasks.amazonaws.com
         Version: "2012-10-17"
-      RoleName: !Sub "${ServiceName}-execution-role"
+      RoleName: !Join ["-",[{'Fn::ImportValue': !Sub '${ECRStackName}-ServiceName'},execution-role]]
       Policies:
-      - PolicyName: !Sub "${ServiceName}-parameter-and-secrets-access"
+      - PolicyName: !Join ["-",[{'Fn::ImportValue': !Sub '${ECRStackName}-ServiceName'},parameter-and-secret]]
         PolicyDocument:
           Statement:
           - Effect: Allow
@@ -218,7 +218,7 @@ Resources:
             Effect: Allow
             Resource: "*"
         Version: "2012-10-17"
-      PolicyName: !Sub "${ServiceName}-EcsExecutionRoleDefaultPolicy"
+      PolicyName: !Join ["-",[{'Fn::ImportValue': !Sub '${ECRStackName}-ServiceName'},EcsExecutionRoleDefaultPolicy]]
       Roles:
         - Ref: EcsExecutionRole  
 
@@ -242,9 +242,8 @@ Resources:
     Properties:
       ContainerDefinitions:
         - Essential: true
-          Image:
-            Ref: ECRRepoUri
-          Name: !Sub "${ServiceName}"
+          Image: {'Fn::ImportValue': !Sub '${ECRStackName}-ServiceEcrUri'}
+          Name: {'Fn::ImportValue': !Sub '${ECRStackName}-ServiceName'}
           PortMappings:
             - ContainerPort: !Ref ServicePort
               # HostPort: 80
@@ -252,7 +251,7 @@ Resources:
           LogConfiguration:
             LogDriver: awslogs
             Options:
-              awslogs-stream-prefix: !Sub ${ServiceName}
+              awslogs-stream-prefix: {'Fn::ImportValue': !Sub '${ECRStackName}-ServiceName'}
               awslogs-group: !Ref ServiceLogsGroup
               awslogs-region: !Sub '${AWS::Region}'   
           #------Parameters and Secrets ------#
@@ -275,7 +274,7 @@ Resources:
         Fn::GetAtt:
           - EcsExecutionRole
           - Arn
-      Family: !Sub "${ServiceName}-task-definition"
+      Family: !Join ["-",[{'Fn::ImportValue': !Sub '${ECRStackName}-ServiceName'},task-definition]]
       Memory: "2048"
       NetworkMode: awsvpc
       RequiresCompatibilities:
@@ -303,10 +302,10 @@ Resources:
             - {'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetAPrivate'}
             - {'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetBPrivate'}        
             - {'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetCPrivate'}            
-      ServiceName: !Sub "${ServiceName}-service"
+      ServiceName: {'Fn::ImportValue': !Sub '${ECRStackName}-ServiceName'}
       TaskDefinition:
         Ref: EcsTaskDefinition
       LoadBalancers:
-      - ContainerName: !Sub "${ServiceName}" 
+      - ContainerName: {'Fn::ImportValue': !Sub '${ECRStackName}-ServiceName'} 
         ContainerPort: !Ref ServicePort
         TargetGroupArn: !Ref EcsTg        

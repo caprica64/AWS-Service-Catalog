@@ -17,7 +17,7 @@ Resources:
   ServiceLogsGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: {'Fn::ImportValue': !Sub '${ECRStackName}-ServiceName'}
+      LogGroupName: !Join ["-",[{'Fn::ImportValue': !Sub '${ECRStackName}-ServiceName'},log-group]]
       Tags:
         - Key: "Owner"
           Value: !Join ["-",[{'Fn::ImportValue': !Sub '${ECRStackName}-ServiceName'},log]]
