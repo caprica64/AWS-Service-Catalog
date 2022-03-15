@@ -5,43 +5,33 @@ Parameters:
   ServiceName:
     Type: String
     Description: "Please put the ServiceName that you would like to create"
-    Default: "svc2"
+    Default: "svc1"
+
+  ClusterStackName:
+    Type: String
+    Description: "Enter the cluster name"
+    Default: "ecs-cluster"
+
+  ParentVPCStack:
+    Description: "Parent VPC Stack name"
+    Type: String
+    Default: "vpc"
 
   ServicePort:
     Type: Number
-    Description: "Entre com o valor inl da porta de serviço"
+    Description: "Enter the service port number"
     Default: 80
 
-  VpcId:
-    Type: String
-    Default: "vpc-073b78bffc9dc6062"
-    Description: "Enter the VPC Id where the services are based on"
+  Priority:
+    Type: Number
+    Description: "Enter the service listner rule priority. This must be unique among services"
+    Default: 1
 
-  AlbSubnet:
-    Type: List<AWS::EC2::Subnet::Id>
-    Description: "Choose the public subnets for the ALB"
-    Default: "subnet-060b623208e8cf6e8, subnet-0d830fb13ff263221, subnet-065c827af512cb6cc"
-    
-  AlbSecureListener:
-    Type: String
-    Default: "arn:aws:elasticloadbalancing:us-east-1:861211186414:listener/app/ecs-c-EcsAl-I7RD94Q56GO5/1aca25e36b470ff3/b973e5085a7507ee"
-    Description: "Enter the Secure Listener ARN"
-
-  AlbSecurityGroup:
-    Type: String
-    Default: "sg-0101e69ad4f97f3e8"
-    Description: "Enter the ALB Security Group ID to allow inbound access from the ALB"
- 
   ECRRepoUri:
    Type: String
-   Default: "861211186414.dkr.ecr.us-east-1.amazonaws.com/svc2"
+   Default: "861211186414.dkr.ecr.us-east-1.amazonaws.com/svc1"
    Description: "Repo URI"
   
-  EcsCluster:
-    Type: String
-    Default: "Cluster2"
-    
-
     
   #---- Tag block parameters ----#
   ParOwner:
@@ -69,15 +59,13 @@ Resources:
     Properties:
         GroupName: !Ref ServiceName
         GroupDescription: Allows inbound traffic from ALB and outbound to internal services 
-        VpcId:
-          Ref: VpcId
+        VpcId: {'Fn::ImportValue': !Sub '${ParentVPCStack}-VPC'}
         SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: !Ref ServicePort
           ToPort: !Ref ServicePort
           Description: Allow ALB to reach container service port
-          SourceSecurityGroupId:
-            !Ref AlbSecurityGroup
+          SourceSecurityGroupId: {'Fn::ImportValue': !Sub '${ClusterStackName}-OutputALBSecurityGroup'}
         #--------Resource Tag block--------#
         Tags:
         - Key: "Owner"
@@ -130,7 +118,7 @@ Resources:
       Port: !Ref ServicePort
       Protocol: HTTP
       UnhealthyThresholdCount: 2
-      VpcId: !Ref VpcId ##TO-DO << Import VPC
+      VpcId: {'Fn::ImportValue': !Sub '${ParentVPCStack}-VPC'}
       #--------Resource Tag block--------#
       Tags:
         - Key: "Owner"
@@ -175,19 +163,14 @@ Resources:
       Conditions:
         - Field: host-header
           HostHeaderConfig:
-            Values:
-              - "svc2.caprica.tech"  ##TO-DO << Try to use a join and sub for the service hostname match.
-      ListenerArn: !Ref 'AlbSecureListener' ##TO-DO << Export ListenerArn from the ECS/ALB stack and import here.
-      Priority: 2 
-
-# Example of httP header rule
-#      - Field: http-header
-#        HttpHeaderConfig:
-#          HttpHeaderName: Referer
-#          Values:
-#           - "https://svc2.domain.tech"  ##TO-DO << Try to use a join and sub for the service hostname match.
-#      ListenerArn: !Ref 'AlbSecureListener' ##TO-DO << Export ListenerArn from the ECS/ALB stack and import here.
-#      Priority: 2  
+            Values: ## << Here we can use an array to set up hostname by joining two values. They can be parameter ref or imported.
+              - !Join
+                  - '.'
+                  - - !Ref ServiceName
+                    - {'Fn::ImportValue': !Sub '${ClusterStackName}-OutputDomainName'}
+      ListenerArn: {'Fn::ImportValue': !Sub '${ClusterStackName}-OutputAlbSecureListener'} 
+      Priority: !Ref Priority 
+ 
  
   #------------------------------------------#
   # Execution roles and policies             #
@@ -299,8 +282,7 @@ Resources:
   EcsService:
     Type: AWS::ECS::Service
     Properties:
-      Cluster: #We can refer cluster in a different way such as below.
-        Ref: EcsCluster
+      Cluster: {'Fn::ImportValue': !Sub '${ClusterStackName}-ClusterName'}
       DeploymentConfiguration:
         MaximumPercent: 200
         MinimumHealthyPercent: 50
@@ -311,10 +293,10 @@ Resources:
           AssignPublicIp: DISABLED
           SecurityGroups:
             - !Ref ServiceSecurityGroup
-          Subnets: ##TO-DO << Replace with imported values
-            - !Select [0, !Ref AlbSubnet]
-            - !Select [1, !Ref AlbSubnet]
-            - !Select [2, !Ref AlbSubnet]
+          Subnets:
+            - {'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetAPrivate'}
+            - {'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetBPrivate'}        
+            - {'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetCPrivate'}            
       ServiceName: !Sub "${ServiceName}-service"
       TaskDefinition:
         Ref: EcsTaskDefinition
