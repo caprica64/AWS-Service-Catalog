@@ -1,11 +1,11 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: "Cluster template for ECS/Fargate"
 
+#------------------------------#
+#          Resources           # 
+#------------------------------# 
 Parameters:
-#  ServiceName:
-#    Type: String
-#    Description: "Please enter the ServiceName that you would like to create"
-#    Default: "svc1"
+
 
   ECRStackName:
     Type: String
@@ -32,11 +32,10 @@ Parameters:
     Description: "Enter the service listner rule priority. This must be unique among services"
     Default: 1
 
-  ECRRepoUri:
-   Type: String
-   Default: "861211186414.dkr.ecr.us-east-1.amazonaws.com/svc1"
-   Description: "Repo URI"
-  
+  HealthCheckPath:
+    Type: String
+    Description: "Enter the health check pathname"
+    Default: "/"
     
   #---- Tag block parameters ----#
   ParOwner:
@@ -111,7 +110,7 @@ Resources:
     #DependsOn: ECSALB
     Properties:
       HealthCheckIntervalSeconds: 120
-      HealthCheckPath: /
+      HealthCheckPath: !Ref HealthCheckPath
       HealthCheckProtocol: HTTP
       HealthCheckTimeoutSeconds: 10
       HealthyThresholdCount: 2

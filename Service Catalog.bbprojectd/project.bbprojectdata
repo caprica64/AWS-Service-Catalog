@@ -11,7 +11,6 @@
 		<string>580BDA69-58EE-4BE3-87B7-A7322AAA47BC</string>
 		<string>98113633-080C-4419-9362-90BD7AB67595</string>
 		<string>ADCF0AFC-BB2F-4BEB-8204-68272C9B47A4</string>
-		<string>F2BE6B60-E815-4436-9D6C-2C9E41DC39BF</string>
 	</array>
 	<key>ProjectItems</key>
 	<dict>
@@ -332,50 +331,6 @@
 			<string>container</string>
 			<key>ItemType</key>
 			<string>FolderReference</string>
-		</dict>
-		<key>F2BE6B60-E815-4436-9D6C-2C9E41DC39BF</key>
-		<dict>
-			<key>ItemData</key>
-			<dict>
-				<key>BookmarkData</key>
-				<data>
-				Ym9va6gCAAAAAAQQMAAAAKv0eRFgElY/RD0CLhK6Bn7H
-				7Ijz+K4+MgQngVSANlWMyAEAAAQAAAADAwAAAAgAKAUA
-				AAABAQAAVXNlcnMAAAAGAAAAAQEAAFNoYXJlZAAABAAA
-				AAEBAABMYWJzEwAAAAEBAABBV1MtU2VydmljZS1DYXRh
-				bG9nAAwAAAABAQAAMDUtdGVtcC55YW1sFAAAAAEGAAAQ
-				AAAAIAAAADAAAAA8AAAAWAAAAAgAAAAEAwAArGAAAAAA
-				AAAIAAAABAMAAK5gAAAAAAAACAAAAAQDAACw+0gCAAAA
-				AAgAAAAEAwAACj/DAgAAAAAIAAAABAMAABrX2QIAAAAA
-				FAAAAAEGAACIAAAAmAAAAKgAAAC4AAAAyAAAAAgAAAAA
-				BAAAQcPwa5hQCFQYAAAAAQIAAAEAAAAAAAAADwAAAAAA
-				AAAAAAAAAAAAAAgAAAABCQAAZmlsZTovLy8MAAAAAQEA
-				AE1hY2ludG9zaCBIRAgAAAAEAwAAAMBEE78BAAAIAAAA
-				AAQAAEHD2DnBgAAAJAAAAAEBAABDOUZEOUQyRC0xMzdG
-				LTQ4NDEtOTAwNS1EMDUxNDI3RkVFOEEYAAAAAQIAAIEA
-				AAABAAAA7xMAAAEAAAAAAAAAAAAAAAEAAAABAQAALwAA
-				AAAAAAABBQAAqAAAAP7///8BAAAAAAAAAA0AAAAEEAAA
-				bAAAAAAAAAAFEAAA2AAAAAAAAAAQEAAABAEAAAAAAABA
-				EAAA9AAAAAAAAAACIAAAtAEAAAAAAAAFIAAAJAEAAAAA
-				AAAQIAAANAEAAAAAAAARIAAAaAEAAAAAAAASIAAASAEA
-				AAAAAAATIAAAWAEAAAAAAAAgIAAAlAEAAAAAAAAwIAAA
-				wAEAAAAAAAAQ0AAABAAAAAAAAAA=
-				</data>
-				<key>FileURL</key>
-				<string>file:///Users/Shared/Labs/AWS-Service-Catalog/05-temp.yaml</string>
-				<key>HasSecurityScope</key>
-				<true/>
-				<key>RelativePath</key>
-				<string>./05-temp.yaml</string>
-				<key>TypeID</key>
-				<string>_CFileLocator</string>
-				<key>Version</key>
-				<integer>1</integer>
-			</dict>
-			<key>ItemName</key>
-			<string>05-temp.yaml</string>
-			<key>ItemType</key>
-			<string>FileReference</string>
 		</dict>
 	</dict>
 	<key>com.barebones.DocumentFormatVersion</key>
