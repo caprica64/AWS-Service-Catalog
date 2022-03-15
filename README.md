@@ -5,3 +5,4 @@ AWS Service Catalog project to set up basic VPC and a DevOps pipeline. Initial s
 2022-03-13 > Added NAT Gateway template, tested Service Catalog. Added ECS/ALB Stack and added Service/Task stack.
 2022-03-14 > Moved ALB Listener from Services stack into the ALB one, since the listener is shared between several services using same port
 2022-03-14 > Finished v1.0.0 by taking all parameters out. Pending now, add ECR repo code within the Service stack.
+2022-04-15 > Include new ECR repo code in the Service/Task code

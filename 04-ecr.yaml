@@ -1,0 +1,110 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: "Cluster template for ECS/Fargate"
+
+Parameters:
+  ServiceName:
+    Type: String
+    Description: "Please enter the ServiceName that you would like to create"
+    Default: "svc1"
+
+  DevAccountId:
+    Type: String
+    Description: "Enter with the AWS Developer Account ID"
+    Default: "861211186414" 
+    
+  #---- Tag block parameters ----#
+  ParOwner:
+    Type: String
+    Default: "User"
+    Description: "Enter the cluster owner"
+  ParProject:
+    Type: String
+    Default: "DevOps"
+    Description: "Enter project name"
+  #------------------------------#   
+
+
+
+#------------------------------#
+#          Resources           # 
+#------------------------------#    
+Resources:
+
+
+  #------------------------------------------#
+  # Elastic Container Repository             #
+  #------------------------------------------#
+  EcrRepository:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: !Ref ServiceName
+      RepositoryPolicyText:
+        Statement:
+          - Action: ecr:*
+            Effect: Allow
+            Principal:
+              AWS:
+                - Fn::Join:
+                    - ""
+                    - - "arn:"
+                      - Ref: AWS::Partition
+                      - ":iam::"
+                      - Ref: AWS::AccountId
+                      - :root
+                - Fn::Join:
+                    - ""
+                    - - "arn:"
+                      - Ref: AWS::Partition
+                      - !Sub ":iam::${DevAccountId}:root"
+                - Fn::GetAtt:
+                    - BuildRole
+                    - Arn
+        Version: "2012-10-17"
+    
+  BuildRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: codebuild.amazonaws.com
+        Version: "2012-10-17"
+      
+  BuildRoleDefaultPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+            - logs:CreateLogGroup
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+            Effect: Allow
+            Resource:
+              - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/${ServiceName}-Build"
+              - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/${ServiceName}-Build:*"         
+        Version: "2012-10-17"
+      PolicyName: BuildRoleDefaultPolicy
+      Roles:
+        - Ref: BuildRole  
+
+
+#------------------------------#
+#          Outputs             # 
+#------------------------------#    
+Outputs:  
+  OutputsServiceName:
+    Value:
+      Ref: ServiceName
+    Export:
+      Name: !Sub "${AWS::StackName}-ServiceName"
+    Description: "Container/task service name"
+    
+  OutputsServiceEcrArn:
+    Value:
+      Ref: EcrRepository
+    Export:
+      Name: !Sub "${AWS::StackName}-ServiceEcrArn"
+    Description: "Service repository ARN"    

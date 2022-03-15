@@ -4,8 +4,13 @@ Description: "Cluster template for ECS/Fargate"
 Parameters:
   ServiceName:
     Type: String
-    Description: "Please put the ServiceName that you would like to create"
+    Description: "Please enter the ServiceName that you would like to create"
     Default: "svc1"
+
+  ECRStackName:
+    Type: String
+    Description: "Enter the ECR stack name"
+    Default: "ECR"
 
   ClusterStackName:
     Type: String
@@ -50,6 +55,7 @@ Parameters:
 #          Resources           # 
 #------------------------------#    
 Resources:
+
 
   #------------------------------------------#
   # Service Security Group                   #

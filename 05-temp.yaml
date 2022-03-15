@@ -1,0 +1,37 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: "Cluster template for ECS/Fargate"
+
+Parameters:
+
+  ECRStackName:
+    Type: String
+    Description: "Enter the ECR stack name"
+    Default: "ECR"
+
+
+
+Resources:
+  #------------------------------------------#
+  # Service LogGroup                         #
+  #------------------------------------------# 
+  ServiceLogsGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: {'Fn::ImportValue': !Sub '${ECRStackName}-ServiceName'}
+      Tags:
+        - Key: "Owner"
+          Value: !Join ["-",[{'Fn::ImportValue': !Sub '${ECRStackName}-ServiceName'},log]]
+
+#          HostHeaderConfig:
+#            Values: ## << Here we can use an array to set up hostname by joining two values. They can be parameter ref or imported.
+#              - !Join
+#                  - '.'
+#                  - - !Ref ServiceName
+#                    - {'Fn::ImportValue': !Sub '${ClusterStackName}-OutputDomainName'}
+
+
+      #!Sub "${ECRStackName}-OutputServiceName-service-logs" #!Sub "${ServiceName}-service-logs"
+      #RetentionInDays: 5
+      #{'Fn::ImportValue': !Sub '${ClusterStackName}-OutputALBSecurityGroup'}
+    #UpdateReplacePolicy: Retain
+    #DeletionPolicy: Retain
