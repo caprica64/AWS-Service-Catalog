@@ -236,4 +236,9 @@ Outputs:
       !Ref ALBSecurityGroup
     Description: "Security Group ID of the ALB"
     Export:
-      Name: !Sub "${AWS::StackName}-OutputALBSecurityGroup"       
+      Name: !Sub "${AWS::StackName}-OutputALBSecurityGroup"  
+
+  StackName:
+    Description: 'Stack name.'
+    Value: !Sub '${AWS::StackName}'
+         
