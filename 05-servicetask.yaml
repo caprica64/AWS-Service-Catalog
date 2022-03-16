@@ -331,4 +331,12 @@ Resources:
       LoadBalancers:
       - ContainerName: {'Fn::ImportValue': !Sub '${ECRStackName}-ServiceName'} 
         ContainerPort: !Ref ServicePort
-        TargetGroupArn: !Ref EcsTg        
+        TargetGroupArn: !Ref EcsTg 
+
+Outputs:
+
+  StackName:
+    Description: 'Stack name.'
+    Value: !Sub '${AWS::StackName}'
+         
+                

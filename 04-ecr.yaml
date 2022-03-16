@@ -115,4 +115,9 @@ Outputs:
     Value: !GetAtt EcrRepository.RepositoryUri
     Export:
       Name: !Sub "${AWS::StackName}-ServiceEcrUri"
-    Description: "Service repository URI"        
+    Description: "Service repository URI" 
+
+  StackName:
+    Description: 'Stack name.'
+    Value: !Sub '${AWS::StackName}'
+       
