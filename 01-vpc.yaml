@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'VPC: com subnets publicas e privadas em 3AZ sem NAT Gateway - baseado no cloudonaut.io - teste de changeset com estágio de execução'
+Description: 'VPC: with 3 AZ and private and public subnet'
 Metadata:
   'AWS::CloudFormation::Interface':
     ParameterGroups:
