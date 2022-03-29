@@ -6,7 +6,7 @@ These projects will have two or more product environment accounts where products
 
 ## Service Catalog with multiple products.
 
-This project repository has examples of CloudFormation templates that can be used to set up portfolios and reladted products as building blocks to self-serving teams using AWS accounts. The goal here is demonstrate how one service output can be reused into another component to create a workload. For example, a **VPC** product from a Foundation portfolio can be used as an input for NAT Gateway product to enable outbound internet access to it and also be used as an input for an **ECS cluster** product. The very same ECS Cluster can be reused as the home cluster of one or more products such as Fargate Services.
+This project repository has examples of CloudFormation templates that can be used to set up portfolios and related products as building blocks to self-serving teams using AWS accounts. The goal here is demonstrate how one service output can be reused into another component to create a workload. For example, a **VPC** product from a Foundation portfolio can be used as an input for NAT Gateway product to enable outbound internet access to it and also be used as an input for an **ECS cluster** product. The very same ECS Cluster can be reused as the home cluster of one or more products such as Fargate Services.
 
 AWS Service Catalog project to set up basic VPC and a DevOps pipeline. Initial setup will allow the sequencial use of CloudFormation templates to create a VPC, Network Gateway with updated routes, than one ECS Cluster with an ALB and later multiple ECS Services.
 
