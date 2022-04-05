@@ -4,6 +4,8 @@ This project is to design an AWS Shared Service Catalog proof of concept where a
 
 These projects will have two or more product environment accounts where products are deployed, such as VPC, network routes and subnets, ECS and others. When you deploy an application service such as an ECS Service/Task, it should also deploy the pipeline for versioning those workloads.
 
+The templates created in this project are numbered in the order they should be used. Those can be used in individual stacks or can be used in Portfolios in AWS Service Catalog.
+
 ## Service Catalog with multiple products.
 
 This project repository has examples of CloudFormation templates that can be used to set up portfolios and related products as building blocks to self-serving teams using AWS accounts. The goal here is demonstrate how one service output can be reused into another component to create a workload. For example, a **VPC** product from a Foundation portfolio can be used as an input for NAT Gateway product to enable outbound internet access to it and also be used as an input for an **ECS cluster** product. The very same ECS Cluster can be reused as the home cluster of one or more products such as Fargate Services.
@@ -34,7 +36,7 @@ Once you are done with testing, it is necessary to clean up ECR repository befor
 We are not covering a pipeline setup for the product yet, but it is possible to build one in AWS using CodeCommit for the repository, CodePipeline for the pipeline, CodeBuild for the container build and repository update and ECS as the target deploy stage. Going further it should be possible to add code and container verification stages, i.e DAST/SAST products.
 
 - 2022-03-29 > There is no service autoscaling yet.
-- 2022-03-29 > There is no autoprovisioning of a sample docker container to quick test. Some automation could take the service port number, use it on an NGINX config file and docker build a hello world container.
+- 2022-03-29 > There is no auto provisioning of a sample docker container to quick test. Some automation could take the service port number, use it on an NGINX config file and docker build a hello world container.
 
 ## Change log
 
@@ -48,4 +50,5 @@ We are not covering a pipeline setup for the product yet, but it is possible to 
 	- ECR stack fails termination because ECR won't delete a repo that is not empty. Probably will require a maintain policy, similar to S3.
 	- Still, we need to be able to register the services into a Route 53 record in the same account. For the future into a R53 in another account. Consider using Conditions and Parameters for the consumer to choose.
 - 2022-03-29 > Updated README.
+- 2022-04-05 > Update README about project information.
 
